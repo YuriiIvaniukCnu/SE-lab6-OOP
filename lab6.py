@@ -1,3 +1,4 @@
+import argparse
 import random
 from abc import ABC, abstractmethod
 
@@ -96,5 +97,26 @@ def print_employees(employees):
         print(f"{e.code} {e.surname:<15} {e.salary():>10.2f} {e.tax():>10.2f}")
 
 
+def main():
+    parser = argparse.ArgumentParser(description="Працівники ІТ підприємства")
+    commands = parser.add_subparsers(dest="command")
+    commands.add_parser("group", help="ФОП за групою").add_argument("group", type=int, choices=[1, 2, 3])
+    commands.add_parser("income", help="ФОП з доходом не менше заданого").add_argument("min", type=float)
+    commands.add_parser("tax", help="ФОП з податком не менше заданого").add_argument("min", type=float)
+    args = parser.parse_args()
+
+    employees = sort_employees(generate_employees(20))
+    fops = [e for e in employees if isinstance(e, FOPEmployee)]
+
+    if args.command == "group":
+        employees = [e for e in fops if e.group == args.group]
+    elif args.command == "income":
+        employees = [e for e in fops if e.salary() >= args.min]
+    elif args.command == "tax":
+        employees = [e for e in fops if e.tax() >= args.min]
+
+    print_employees(employees)
+
+
 if __name__ == '__main__':
-    print_employees(sort_employees(generate_employees(20)))
+    main()
